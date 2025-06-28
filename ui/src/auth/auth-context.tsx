@@ -1,6 +1,6 @@
 import { fetcher } from "@/api/fetcher";
 import { createContext, useContext, type ReactNode } from "react";
-import useSWR from "swr";
+import useSWR from "swr/immutable";
 
 type User = {
     id: string;
@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const user = error ? null : data;
 
     return (
-        <AuthContext.Provider value={user as User | null}>
+        <AuthContext.Provider value={user}>
             {children}
         </AuthContext.Provider>
     );

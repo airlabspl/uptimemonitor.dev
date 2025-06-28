@@ -1,22 +1,14 @@
-package http
+package handler
 
 import (
-	"io/fs"
 	"net/http"
 	"os"
+	"selfhosted/ui"
 	"strings"
 )
 
-type UIHandler struct {
-	FS fs.FS
-}
-
-func NewUIHandler(fs fs.FS) *UIHandler {
-	return &UIHandler{FS: fs}
-}
-
-func (h *UIHandler) Handle(w http.ResponseWriter, r *http.Request) {
-	f, err := h.FS.Open(strings.TrimPrefix(r.URL.Path, "/"))
+func UI(w http.ResponseWriter, r *http.Request) {
+	f, err := ui.FS().Open(strings.TrimPrefix(r.URL.Path, "/"))
 	if err != nil && os.IsNotExist(err) {
 		r.URL.Path = "/"
 	}
@@ -35,5 +27,5 @@ func (h *UIHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Expires", "max-age=31536000")
 	}
 
-	http.FileServerFS(h.FS).ServeHTTP(w, r)
+	http.FileServerFS(ui.FS()).ServeHTTP(w, r)
 }
