@@ -43,6 +43,7 @@ func main() {
 			r.Use(handler.AuthenticatedMiddleware)
 
 			r.Get("/profile", handler.Profile)
+			r.Delete("/auth/logout", handler.Logout)
 		})
 
 		r.Group(func(r chi.Router) {

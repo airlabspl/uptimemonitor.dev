@@ -220,3 +220,30 @@ func Verification(w http.ResponseWriter, r *http.Request) {
 	slog.Info("verification deleted", "context", "Verification", "verificationID", verification.ID)
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
+
+func Logout(w http.ResponseWriter, r *http.Request) {
+	c, err := r.Cookie("session")
+	if err != nil || c.Value == "" {
+		slog.Error("session cookie not found", "context", "Logout", "error", err)
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
+
+	err = database.New().DeleteSession(r.Context(), c.Value)
+	if err != nil {
+		slog.Error("session deletion error", "context", "Logout", "cookie", c.Value, "error", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session",
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   false, // todo
+		SameSite: http.SameSiteLaxMode,
+	})
+
+	w.WriteHeader(http.StatusOK)
+}

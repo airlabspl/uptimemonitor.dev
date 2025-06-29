@@ -11,6 +11,7 @@ type AuthContextType = {
     loading: boolean;
     error: any;
     reload: () => void;
+    logout: () => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,6 +31,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             .catch(err => setError(err));
     }, []);
 
+    const logout = useCallback(() => {
+        fetch(`/v1/auth/logout`, {
+            method: 'DELETE',
+            credentials: 'include',
+        })
+            .then(() => {
+                setUser(null);
+            })
+            .catch(err => setError(err));
+    }, []);
+
     useEffect(() => reload(), [reload]);
 
     const value: AuthContextType = {
@@ -37,6 +49,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         loading,
         error,
         reload,
+        logout,
     };
 
     return (
