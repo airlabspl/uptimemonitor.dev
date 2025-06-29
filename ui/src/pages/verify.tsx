@@ -1,8 +1,11 @@
+import { useAuth } from "@/auth/auth-context";
 import { Button } from "@/components/ui/button";
 import { FormEvent, useState } from "react";
+import { Navigate } from "react-router-dom";
 import { toast } from "sonner";
 
 export default function VerifyPage() {
+    const { user } = useAuth()
     const [resent, setResent] = useState(false)
 
     const handleResend = async (event: FormEvent<HTMLButtonElement>) => {
@@ -22,6 +25,11 @@ export default function VerifyPage() {
         setResent(true)
         toast.success("The verification email has been resent")
     }
+
+    if (user?.verified) {
+        return <Navigate to="/dashboard" />
+    }
+
     return (
         <div className="flex flex-col items-center justify-center h-screen">
             <h1 className="text-2xl font-bold mb-4">Email Verification Required</h1>
