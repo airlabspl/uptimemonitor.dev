@@ -16,32 +16,35 @@ import VerifyPage from './pages/verify-page'
 import { AppProvider } from './app/app-context'
 import { SetupRoutes } from './app/setup-routes'
 import SetupPage from './pages/setup-page'
+import { ThemeProvider } from './theme/theme-context'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <AppProvider>
-      <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route element={<SetupRoutes />}>
-              <Route path="/" element={<HomePage />} />
-              <Route element={<ProtectedRoutes />}>
-                <Route path="/verify" element={<VerifyPage />} />
-                <Route element={<VerifiedRoutes />}>
-                  <Route path="/dashboard" element={<Dashboard />} />
+    <ThemeProvider>
+      <AppProvider>
+        <AuthProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route element={<SetupRoutes />}>
+                <Route path="/" element={<HomePage />} />
+                <Route element={<ProtectedRoutes />}>
+                  <Route path="/verify" element={<VerifyPage />} />
+                  <Route element={<VerifiedRoutes />}>
+                    <Route path="/dashboard" element={<Dashboard />} />
+                  </Route>
+                </Route>
+                <Route element={<GuestRoutes />}>
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
                 </Route>
               </Route>
-              <Route element={<GuestRoutes />}>
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-              </Route>
-            </Route>
-            <Route path="/setup" element={<SetupPage />} />
-            <Route path="*" element={<div>404 Not Found</div>} />
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
-    </AppProvider>
+              <Route path="/setup" element={<SetupPage />} />
+              <Route path="*" element={<div>404 Not Found</div>} />
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
+      </AppProvider>
+    </ThemeProvider>
     <Toaster />
   </StrictMode>,
 )
