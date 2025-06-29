@@ -8,6 +8,11 @@ import (
 )
 
 func UI(w http.ResponseWriter, r *http.Request) {
+	if strings.HasPrefix(r.URL.Path, "/v1") {
+		http.NotFound(w, r)
+		return
+	}
+
 	f, err := ui.FS().Open(strings.TrimPrefix(r.URL.Path, "/"))
 	if err != nil && os.IsNotExist(err) {
 		r.URL.Path = "/"

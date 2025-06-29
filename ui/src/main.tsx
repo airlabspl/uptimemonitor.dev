@@ -10,6 +10,7 @@ import { GuestRoutes } from './auth/guest-routes'
 import HomePage from './pages/home-page'
 import LoginPage from './pages/login-page'
 import { Toaster } from './components/ui/sonner'
+import RegisterPage from './pages/register-page'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -23,6 +24,7 @@ createRoot(document.getElementById('root')!).render(
           </Route>
           <Route element={<GuestRoutes />}>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
           </Route>
           <Route path="*" element={<div>404 Not Found</div>} />
         </Routes>

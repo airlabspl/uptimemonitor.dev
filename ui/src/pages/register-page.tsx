@@ -5,26 +5,26 @@ import { Label } from "@/components/ui/label"
 import { Link, useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 
-export default function LoginPage() {
+export default function RegisterPage() {
     return (
         <div className="min-h-svh flex items-center justify-center p-6 md:p-10">
             <div className="flex flex-col w-full max-w-sm gap-6">
                 <div className="flex flex-col gap-1 text-center">
-                    <h1 className="text-2xl font-bold">Log in to your account</h1>
+                    <h1 className="text-2xl font-bold">Create a new account</h1>
                     <p className="text-sm text-muted-foreground">
-                        Don't have an account?{" "}
-                        <Link to="/register" className="text-primary underline">
-                            Sign up
+                        Already have an account?{" "}
+                        <Link to="/login" className="text-primary underline">
+                            Log in
                         </Link>
                     </p>
                 </div>
-                <LoginForm />
+                <RegisterForm />
             </div>
         </div>
     )
 }
 
-function LoginForm() {
+function RegisterForm() {
     const navigate = useNavigate();
     const { reload } = useAuth();
 
@@ -33,7 +33,7 @@ function LoginForm() {
 
         const formData = new FormData(event.currentTarget);
 
-        const res = await fetch("/v1/auth/login", {
+        const res = await fetch("/v1/auth/register", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -45,31 +45,34 @@ function LoginForm() {
         })
 
         if (!res.ok) {
-            toast.error("Login failed. Please check your email and password.");
+            toast.error("Registration failed. Please check your email and password.");
             return;
         }
 
         reload();
-        toast.success("Logged in successfully!");
         navigate("/dashboard");
     };
 
     return <form className="w-full max-w-sm flex flex-col gap-4" onSubmit={handleSubmit}>
+
+        <div className="flex flex-col gap-1.5">
+            <Label htmlFor="name">Name</Label>
+            <Input id="name" type="text" name="name" placeholder="John Doe" autoFocus required />
+        </div>
         <div className="flex flex-col gap-1.5">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" name="email" placeholder="email@example.com" autoFocus required />
+            <Input id="email" type="email" name="email" placeholder="email@example.com" required />
         </div>
         <div className="flex flex-col gap-1.5">
-            <div className="flex items-center justify-between gap-4">
-                <Label htmlFor="password">Password</Label>
-                <a href="/forgot-password" className="text-sm text-primary underline">
-                    Forgot password?
-                </a>
-            </div>
+            <Label htmlFor="password">Password</Label>
             <Input id="password" type="password" name="password" placeholder="••••••••" required />
         </div>
+        <div className="flex flex-col gap-1.5">
+            <Label htmlFor="confirm-password">Confirm Password</Label>
+            <Input id="confirm-password" type="password" name="confirm-password" placeholder="••••••••" required />
+        </div>
         <div>
-            <Button type="submit" className="w-full">Log in</Button>
+            <Button type="submit" className="w-full">Sign up</Button>
         </div>
     </form>
 }
