@@ -14,6 +14,6 @@ func PasswordResetMessage(email, token string) Message {
 	return Message{
 		To:      email,
 		Subject: "Password Reset",
-		Body:    "Please reset your password by clicking the following link: " + config.AppUrl() + "/auth/reset/" + token,
+		Body:    "Please reset your password by clicking the following link: " + config.AppUrl() + "/reset-password/" + token,
 	}
 }

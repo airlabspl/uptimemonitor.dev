@@ -265,3 +265,53 @@ func ResetPasswordLink(w http.ResponseWriter, r *http.Request) {
 		slog.Info("password reset email sent", "context", "ResetPasswordLink", "userID", user.ID)
 	}(user, token)
 }
+
+func ResetPassword(w http.ResponseWriter, r *http.Request) {
+	req := struct {
+		Token           string `json:"token" validate:"required"`
+		Password        string `json:"password" validate:"required"`
+		ConfirmPassword string `json:"confirm_password" validate:"required,eqfield=Password"`
+	}{}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		slog.Error("decode error", "context", "ResetPassword", "error", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	if err := validate.Struct(req); err != nil {
+		http.Error(w, http.StatusText(http.StatusBadGateway), http.StatusBadGateway)
+		return
+	}
+
+	passwordReset, err := database.New().GetPasswordResetByToken(r.Context(), req.Token)
+	if err != nil {
+		slog.Error("password reset not found", "context", "ResetPassword", "error", err)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+
+	if passwordReset.ExpiresAt.Before(time.Now()) {
+		slog.Error("link expired", "context", "ResetPassword", "ExpiresAt", passwordReset.ExpiresAt)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		slog.Error("bcrypt error", "context", "ResetPassword", "error", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	if err = database.New().UpdateUserPassword(r.Context(), store.UpdateUserPasswordParams{
+		ID:           passwordReset.UserID,
+		PasswordHash: string(hash),
+	}); err != nil {
+		slog.Error("unable to update user password", "context", "ResetPassword", "error", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}

@@ -1,6 +1,6 @@
 # TODO
 
-- [ ] Reset password
+- [x] Reset password
 - [ ] Resend email verification
 - [ ] Rate limitters
 - [ ] Landing page

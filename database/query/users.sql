@@ -13,3 +13,8 @@ SELECT COUNT(*) AS count FROM users WHERE is_admin = TRUE;
 INSERT INTO users (name, email, password_hash, is_admin)
 VALUES (?, ?, ?, TRUE)
 RETURNING *;
+
+-- name: UpdateUserPassword :exec
+UPDATE users
+SET password_hash = ?
+WHERE id = ?;

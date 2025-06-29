@@ -54,7 +54,8 @@ func main() {
 				r.Use(handler.SelfhostedDisabledMiddleware)
 
 				r.Post("/auth/register", handler.RegisterForm)
-				r.Post("/auth/password-reset-link", handler.ResetPasswordLink)
+				r.Post("/auth/reset-password-link", handler.ResetPasswordLink)
+				r.Post("/auth/reset-password", handler.ResetPassword)
 			})
 		})
 	})
