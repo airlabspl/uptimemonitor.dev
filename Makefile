@@ -15,6 +15,10 @@ bin:
 		-smtp-pass "" \
 		-mail-from "Uptime Monitor <no-reply@uptimemonitor.dev>" 
 
+.PHONY: selfhosted
+selfhosted:
+	./tmp/main -selfhosted true
+
 .PHONY: ui
 ui:
 	npm run build --prefix ./ui

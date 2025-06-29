@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useState } from "rea
 
 type AppContextType = {
     setupFinished: boolean;
+    selfhosted: boolean;
     reload: () => void;
     loading: boolean;
 }
@@ -10,7 +11,10 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const [loading, setLoading] = useState<boolean>(true);
-    const [setupFinished, setSetupFinished] = useState<boolean>(false);
+    const [data, setData] = useState<{
+        setup_finished: boolean;
+        selfhosted: boolean;
+    } | null>(null);
 
     const reload = useCallback(() => {
         fetch(`/v1/app`, {
@@ -18,7 +22,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         })
             .then((response) => response.json())
             .then((data) => {
-                setSetupFinished(data.setup_finished);
+                setData(data);
             })
             .finally(() => setLoading(false));
     }, []);
@@ -27,7 +31,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
     return (
         <AppContext.Provider value={{
-            setupFinished,
+            setupFinished: data?.setup_finished ?? false,
+            selfhosted: data?.selfhosted ?? false,
             reload,
             loading,
         }}>

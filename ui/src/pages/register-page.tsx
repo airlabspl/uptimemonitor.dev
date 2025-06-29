@@ -1,11 +1,18 @@
+import { useApp } from "@/app/app-context"
 import { useAuth } from "@/auth/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, Navigate, useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 
 export default function RegisterPage() {
+    const { selfhosted } = useApp();
+
+    if (selfhosted) {
+        return <Navigate to="/login" replace />
+    }
+
     return (
         <div className="min-h-svh flex items-center justify-center p-6 md:p-10">
             <div className="flex flex-col w-full max-w-sm gap-6">

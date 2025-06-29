@@ -1,3 +1,4 @@
+import { useApp } from "@/app/app-context"
 import { useAuth } from "@/auth/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -6,17 +7,19 @@ import { Link, useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 
 export default function LoginPage() {
+    const { selfhosted } = useApp();
+
     return (
         <div className="min-h-svh flex items-center justify-center p-6 md:p-10">
             <div className="flex flex-col w-full max-w-sm gap-6">
                 <div className="flex flex-col gap-1 text-center">
                     <h1 className="text-2xl font-bold">Log in to your account</h1>
-                    <p className="text-sm text-muted-foreground">
+                    {!selfhosted && (<p className="text-sm text-muted-foreground">
                         Don't have an account?{" "}
                         <Link to="/register" className="text-primary underline">
                             Sign up
                         </Link>
-                    </p>
+                    </p>)}
                 </div>
                 <LoginForm />
             </div>
@@ -27,6 +30,7 @@ export default function LoginPage() {
 function LoginForm() {
     const navigate = useNavigate();
     const { reload } = useAuth();
+    const { selfhosted } = useApp();
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -62,9 +66,10 @@ function LoginForm() {
         <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between gap-4">
                 <Label htmlFor="password">Password</Label>
-                <a href="/forgot-password" className="text-sm text-primary underline">
-                    Forgot password?
-                </a>
+                {!selfhosted &&
+                    <a href="/forgot-password" className="text-sm text-primary underline">
+                        Forgot password?
+                    </a>}
             </div>
             <Input id="password" type="password" name="password" placeholder="••••••••" required />
         </div>

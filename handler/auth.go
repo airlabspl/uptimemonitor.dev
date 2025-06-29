@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
+	"selfhosted/config"
 	"selfhosted/database"
 	"selfhosted/database/store"
 	"selfhosted/mailer"
@@ -71,6 +72,12 @@ func LoginForm(w http.ResponseWriter, r *http.Request) {
 }
 
 func RegisterForm(w http.ResponseWriter, r *http.Request) {
+	if *config.SELFHOSTED {
+		slog.Error("registration is not allowed in self-hosted mode", "context", "RegisterForm")
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		return
+	}
+
 	req := struct {
 		Name            string `json:"name" validate:"required"`
 		Email           string `json:"email" validate:"required,email"`
@@ -161,6 +168,12 @@ func RegisterForm(w http.ResponseWriter, r *http.Request) {
 }
 
 func Verification(w http.ResponseWriter, r *http.Request) {
+	if *config.SELFHOSTED {
+		slog.Error("verification is not allowed in self-hosted mode", "context", "Verification")
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		return
+	}
+
 	token := chi.URLParam(r, "token")
 	if token == "" {
 		slog.Error("verification token is empty", "context", "Verification")
