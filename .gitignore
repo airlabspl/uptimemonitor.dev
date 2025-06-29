@@ -3,3 +3,4 @@ ui/dist/app/
 ui/dist/guest/
 ui/dist/setup/
 database/store/
+*.sqlite

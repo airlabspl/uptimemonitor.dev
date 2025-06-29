@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"embed"
+	"log/slog"
 	"selfhosted/config"
 	"selfhosted/database/store"
 
@@ -19,7 +20,10 @@ var (
 
 func init() {
 	var err error
-	db, err = sql.Open("sqlite", config.DATABASE_DSN)
+
+	slog.Info("Initializing database", "dsn", *config.DATABASE_DSN)
+
+	db, err = sql.Open("sqlite", *config.DATABASE_DSN)
 	if err != nil {
 		panic(err)
 	}
