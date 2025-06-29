@@ -21,9 +21,10 @@ var (
 func init() {
 	var err error
 
-	slog.Info("Initializing database", "dsn", *config.DATABASE_DSN)
+	dsn := config.DatabaseDsn()
+	slog.Info("Initializing database", "dsn", dsn)
 
-	db, err = sql.Open("sqlite", *config.DATABASE_DSN)
+	db, err = sql.Open("sqlite", dsn)
 	if err != nil {
 		panic(err)
 	}
