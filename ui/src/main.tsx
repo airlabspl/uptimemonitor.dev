@@ -11,6 +11,8 @@ import LoginPage from './pages/login-page'
 import { Toaster } from './components/ui/sonner'
 import RegisterPage from './pages/register-page'
 import Dashboard from './pages/dashboard'
+import { VerifiedRoutes } from './auth/verified-routes'
+import VerifyPage from './pages/verify-page'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -19,7 +21,10 @@ createRoot(document.getElementById('root')!).render(
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route element={<ProtectedRoutes />}>
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/verify" element={<VerifyPage />} />
+            <Route element={<VerifiedRoutes />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+            </Route>
           </Route>
           <Route element={<GuestRoutes />}>
             <Route path="/login" element={<LoginPage />} />

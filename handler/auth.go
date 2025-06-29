@@ -2,14 +2,17 @@ package handler
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"log/slog"
 	"net/http"
+	"selfhosted/config"
 	"selfhosted/database"
 	"selfhosted/database/store"
 	"selfhosted/mailer"
 	"time"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -113,6 +116,18 @@ func RegisterForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if *config.AUTOMATIC_VERIFICATION {
+		err = database.New().VerifyUser(r.Context(), store.VerifyUserParams{
+			ID:              user.ID,
+			EmailVerifiedAt: sql.NullTime{Time: time.Now(), Valid: true},
+		})
+		if err != nil {
+			slog.Error("automatic verification failed", "context", "RegisterForm", "userID", user.ID, "error", err)
+		} else {
+			slog.Info("user automatically verified", "context", "RegisterForm", "userID", user.ID)
+		}
+	}
+
 	session, err := database.New().CreateSession(r.Context(), store.CreateSessionParams{
 		Uuid:      uuid.NewString(),
 		UserID:    user.ID,
@@ -125,7 +140,13 @@ func RegisterForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	go func(user store.User) {
-		ctx, _ := context.WithTimeout(context.Background(), time.Minute)
+		if *config.AUTOMATIC_VERIFICATION {
+			slog.Info("automatic verification enabled, skipping email", "context", "RegisterForm", "userID", user.ID)
+			return
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+		defer cancel()
 		token := uuid.NewString()
 		err := database.New().CreateVerification(ctx, store.CreateVerificationParams{
 			UserID:    user.ID,
@@ -155,4 +176,47 @@ func RegisterForm(w http.ResponseWriter, r *http.Request) {
 	})
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func Verification(w http.ResponseWriter, r *http.Request) {
+	token := chi.URLParam(r, "token")
+	if token == "" {
+		slog.Error("verification token is empty", "context", "Verification")
+		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+		return
+	}
+
+	verification, err := database.New().GetVerificationByToken(r.Context(), token)
+	if err != nil || verification.ID == 0 {
+		slog.Error("verification not found", "context", "Verification", "token", token, "error", err)
+		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+		return
+	}
+
+	if verification.ExpiresAt.Before(time.Now()) {
+		slog.Error("verification token expired", "context", "Verification", "token", token)
+		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+		return
+	}
+
+	err = database.New().VerifyUser(r.Context(), store.VerifyUserParams{
+		ID:              verification.UserID,
+		EmailVerifiedAt: sql.NullTime{Time: time.Now(), Valid: true},
+	})
+	if err != nil {
+		slog.Error("user verification error", "context", "Verification", "userID", verification.UserID, "error", err)
+		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+		return
+	}
+	slog.Info("user verified", "context", "Verification", "userID", verification.UserID)
+
+	err = database.New().DeleteVerification(r.Context(), verification.ID)
+	if err != nil {
+		slog.Error("verification deletion error", "context", "Verification", "verificationID", verification.ID, "error", err)
+		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+		return
+	}
+
+	slog.Info("verification deleted", "context", "Verification", "verificationID", verification.ID)
+	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }

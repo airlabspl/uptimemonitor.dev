@@ -56,7 +56,6 @@ function RegisterForm() {
     };
 
     return <form className="w-full max-w-sm flex flex-col gap-4" onSubmit={handleSubmit}>
-
         <div className="flex flex-col gap-1.5">
             <Label htmlFor="name">Name</Label>
             <Input id="name" type="text" name="name" placeholder="John Doe" autoFocus required />

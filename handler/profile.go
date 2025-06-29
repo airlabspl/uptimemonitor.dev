@@ -14,10 +14,12 @@ func Profile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(struct {
-		Name  string `json:"name"`
-		Email string `json:"email"`
+		Name     string `json:"name"`
+		Email    string `json:"email"`
+		Verified bool   `json:"verified"`
 	}{
-		Name:  user.Name,
-		Email: user.Email,
+		Name:     user.Name,
+		Email:    user.Email,
+		Verified: user.EmailVerifiedAt.Valid && !user.EmailVerifiedAt.Time.IsZero(),
 	})
 }

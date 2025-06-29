@@ -29,6 +29,8 @@ func main() {
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Timeout(60 * time.Second))
 
+	r.Get("/auth/verify/{token}", handler.Verification)
+
 	r.Route("/v1", func(r chi.Router) {
 		r.Use(handler.AssignUserToContextMiddleware)
 

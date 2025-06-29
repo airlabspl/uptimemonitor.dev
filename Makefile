@@ -13,7 +13,7 @@ bin:
 		-smtp-port 1025 \
 		-smtp-user "" \
 		-smtp-pass "" \
-		-mail-from "Uptime Monitor <no-reply@uptimemonitor.dev>"
+		-mail-from "Uptime Monitor <no-reply@uptimemonitor.dev>" 
 
 .PHONY: ui
 ui:

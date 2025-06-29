@@ -1,9 +1,9 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 
 type User = {
-    id: string;
     name: string;
     email: string;
+    verified: boolean;
 }
 
 type AuthContextType = {
