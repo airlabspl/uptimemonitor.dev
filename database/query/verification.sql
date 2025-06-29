@@ -6,7 +6,8 @@ VALUES (?, ?, ?);
 SELECT verifications.*, sqlc.embed(users) 
 FROM verifications 
 JOIN users ON verifications.user_id = users.id 
-WHERE token = ?;
+WHERE token = ?
+LIMIT 1;
 
 -- name: VerifyUser :exec
 UPDATE users
@@ -16,3 +17,9 @@ WHERE id = ?;
 -- name: DeleteVerification :exec
 DELETE FROM verifications
 WHERE id = ?;
+
+-- name: GetLatestUserVerification :one
+SELECT * FROM verifications
+WHERE user_id = ?
+ORDER BY id DESC
+LIMIT 1;

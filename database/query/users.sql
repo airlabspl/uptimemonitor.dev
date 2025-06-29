@@ -4,7 +4,7 @@ VALUES (?, ?, ?)
 RETURNING *;
 
 -- name: GetUserByEmail :one
-SELECT * FROM users WHERE email = ?;
+SELECT * FROM users WHERE email = ? LIMIT 1;
 
 -- name: CountAdminUsers :one
 SELECT COUNT(*) AS count FROM users WHERE is_admin = TRUE;

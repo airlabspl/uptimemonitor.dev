@@ -6,4 +6,5 @@ VALUES (?, ?, ?, ?);
 SELECT password_resets.*, sqlc.embed(users)
 FROM password_resets
 LEFT JOIN users ON users.id = password_resets.user_id
-WHERE token = ?;
+WHERE token = ?
+LIMIT 1;

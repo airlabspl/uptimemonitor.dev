@@ -42,6 +42,7 @@ func main() {
 
 			r.Get("/profile", handler.Profile)
 			r.Delete("/auth/logout", handler.Logout)
+			r.Post("/auth/resend-verification", handler.ResendVerification)
 		})
 
 		r.Group(func(r chi.Router) {

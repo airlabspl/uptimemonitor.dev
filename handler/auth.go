@@ -315,3 +315,26 @@ func ResetPassword(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
+
+func ResendVerification(w http.ResponseWriter, r *http.Request) {
+	user, ok := r.Context().Value("user").(*store.User)
+	if !ok {
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
+
+	verification, err := database.New().GetLatestUserVerification(r.Context(), user.ID)
+	if err != nil || verification.ID == 0 {
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+
+	go func(verification store.Verification) {
+		err = mailer.Send(mailer.VerificationMessage(user.Email, verification.Token))
+		if err != nil {
+			slog.Error("verification email send error", "context", "ResendEmailVerification", "userID", user.ID, "error", err)
+			return
+		}
+		slog.Info("verification email sent", "context", "ResendEmailVerification", "userID", user.ID)
+	}(verification)
+}
