@@ -37,11 +37,3 @@ CREATE TABLE IF NOT EXISTS password_resets (
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 -- +goose StatementEnd
-
--- +goose Down
--- +goose StatementBegin
-DROP TABLE password_resets;
-DROP TABLE email_verifications;
-DROP TABLE sessions;
-DROP TABLE users;
--- +goose StatementEnd
