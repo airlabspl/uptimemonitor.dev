@@ -42,6 +42,7 @@ func main() {
 			r.Use(handler.GuestMiddleware)
 
 			r.Post("/auth/login", handler.LoginForm)
+			r.Post("/auth/register", handler.RegisterForm)
 		})
 	})
 

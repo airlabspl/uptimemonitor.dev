@@ -41,6 +41,8 @@ function RegisterForm() {
             body: JSON.stringify({
                 email: formData.get("email"),
                 password: formData.get("password"),
+                name: formData.get("name"),
+                confirm_password: formData.get("confirm_password"),
             }),
         })
 
@@ -69,7 +71,7 @@ function RegisterForm() {
         </div>
         <div className="flex flex-col gap-1.5">
             <Label htmlFor="confirm-password">Confirm Password</Label>
-            <Input id="confirm-password" type="password" name="confirm-password" placeholder="••••••••" required />
+            <Input id="confirm-password" type="password" name="confirm_password" placeholder="••••••••" required />
         </div>
         <div>
             <Button type="submit" className="w-full">Sign up</Button>
