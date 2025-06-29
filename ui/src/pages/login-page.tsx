@@ -1,8 +1,9 @@
+import { useAuth } from "@/auth/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
-import { mutate } from "swr"
 
 export default function LoginPage() {
     return (
@@ -13,6 +14,9 @@ export default function LoginPage() {
 }
 
 function LoginForm() {
+    const navigate = useNavigate();
+    const { reload } = useAuth();
+
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
@@ -34,7 +38,9 @@ function LoginForm() {
             return;
         }
 
-        mutate(`/v1/profile`)
+        reload();
+        toast.success("Logged in successfully!");
+        navigate("/dashboard");
     };
 
     return <form className="w-full max-w-sm flex flex-col gap-4" onSubmit={handleSubmit}>
@@ -44,7 +50,7 @@ function LoginForm() {
         </div>
         <div className="flex flex-col gap-1.5">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="email@example.com" autoFocus required />
+            <Input id="email" type="email" name="email" placeholder="email@example.com" autoFocus required />
         </div>
         <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between gap-4">
@@ -53,7 +59,7 @@ function LoginForm() {
                     Forgot password?
                 </a>
             </div>
-            <Input id="password" type="password" placeholder="••••••••" required />
+            <Input id="password" type="password" name="password" placeholder="••••••••" required />
         </div>
         <div>
             <Button type="submit" className="w-full">Log in</Button>

@@ -21,9 +21,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [error, setError] = useState<any>(null);
 
     const reload = useCallback(() => {
-        setLoading(true);
-
-        fetch(`/v1/profile`)
+        fetch(`/v1/profile`, {
+            credentials: 'include',
+        })
             .then(res => res.json())
             .then(data => setUser(data))
             .finally(() => setLoading(false))

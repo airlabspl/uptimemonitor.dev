@@ -1,16 +1,33 @@
 package main
 
 import (
+	"context"
 	"net/http"
+	"selfhosted/database"
+	"selfhosted/database/store"
 	"selfhosted/handler"
+	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func main() {
+	hash, _ := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.DefaultCost)
+	database.New().CreateUser(context.Background(), store.CreateUserParams{
+		Email:        "test@example.com",
+		Name:         "Test User",
+		PasswordHash: string(hash),
+	})
+
 	addr := ":4000"
 
 	r := chi.NewMux()
+	r.Use(middleware.Recoverer)
+	r.Use(middleware.Logger)
+	r.Use(middleware.RequestID)
+	r.Use(middleware.Timeout(60 * time.Second))
 
 	r.Group(func(r chi.Router) {
 

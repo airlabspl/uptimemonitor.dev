@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"encoding/json"
+	"log/slog"
 	"net/http"
 	"selfhosted/database"
 	"selfhosted/database/store"
@@ -14,31 +16,29 @@ func LoginForm(w http.ResponseWriter, r *http.Request) {
 	req := struct {
 		Email    string `json:"email" validate:"required,email"`
 		Password string `json:"password" validate:"required"`
-	}{
-		Email:    r.FormValue("email"),
-		Password: r.FormValue("password"),
+	}{}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		slog.Error("decode error", "context", "LoginForm ", "error", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
 
-	r.ParseForm()
-
 	if err := validate.Struct(req); err != nil {
+		slog.Error("validation error", "context", "LoginForm ", "error", err)
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
 	user, err := database.New().GetUserByEmail(r.Context(), req.Email)
 	if err != nil || user.ID == 0 {
+		slog.Error("user not found", "context", "LoginForm ", "email", req.Email, "error", err)
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
-	passwordHash, err := user.PasswordHash.Value()
-	if err != nil || passwordHash == "" {
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		return
-	}
-
-	if bcrypt.CompareHashAndPassword([]byte(passwordHash.(string)), []byte(req.Password)) != nil {
+	if bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)) != nil {
+		slog.Error("password mismatch", "context", "LoginForm ", "userID", user.ID)
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
@@ -49,6 +49,7 @@ func LoginForm(w http.ResponseWriter, r *http.Request) {
 		ExpiresAt: time.Now().Add(24 * time.Hour * 30),
 	})
 	if err != nil {
+		slog.Error("session creation error", "context", "LoginForm ", "userID", user.ID, "error", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}

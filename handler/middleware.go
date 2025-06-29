@@ -1,7 +1,10 @@
 package handler
 
 import (
+	"context"
+	"log/slog"
 	"net/http"
+	"selfhosted/database"
 	"selfhosted/database/store"
 )
 
@@ -13,7 +16,15 @@ func AssignUserToContextMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		session, err := database.New().GetSessionByUUID(r.Context(), c.Value)
+		if err != nil || session.ID == 0 {
+			slog.Error("session not found", "context", "AssignUserToContextMiddleware", "cookie", c.Value, "error", err)
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), "user", &session.User)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
@@ -21,6 +32,7 @@ func AuthenticatedMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user, ok := r.Context().Value("user").(*store.User)
 		if !ok || user == nil {
+			slog.Error("user not found in context", "context", "AuthenticatedMiddleware")
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}

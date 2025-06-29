@@ -5,7 +5,7 @@ export const GuestRoutes = () => {
     const { user } = useAuth();
 
     if (user !== null) {
-        return <Navigate to="/" replace />;
+        return <Navigate to="/dashboard" replace />;
     }
 
     return <Outlet />

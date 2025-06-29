@@ -4,7 +4,7 @@ CREATE TABLE  IF NOT EXISTS users (
     id INTEGER NOT NULL  PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
-    password_hash TEXT,
+    password_hash TEXT NOT NULL,
     created_at DATETIME DEFAULT(CURRENT_TIMESTAMP)
 );
 
