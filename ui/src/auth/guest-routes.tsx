@@ -1,8 +1,8 @@
-import { useUser } from "./auth-context";
 import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "./auth-context";
 
 export const GuestRoutes = () => {
-    const user = useUser();
+    const { user } = useAuth();
 
     if (user !== null) {
         return <Navigate to="/" replace />;

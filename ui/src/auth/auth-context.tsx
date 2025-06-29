@@ -1,6 +1,4 @@
-import { fetcher } from "@/api/fetcher";
-import { createContext, useContext, type ReactNode } from "react";
-import useSWR from "swr/immutable";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 type User = {
     id: string;
@@ -8,30 +6,44 @@ type User = {
     email: string;
 }
 
-const AuthContext = createContext<User | null>(null);
+type AuthContextType = {
+    user: User | null;
+    loading: boolean;
+    error: any;
+};
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const { data, error, isLoading } = useSWR(`/v1/profile`, fetcher, {
-        revalidateOnFocus: false,
-        revalidateIfStale: false,
-        revalidateOnReconnect: false,
-    })
+    const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState<User | null>(null);
+    const [error, setError] = useState<any>(null);
 
-    if (isLoading) return <div>Loading...</div>;
+    useEffect(() => {
+        fetch(`/v1/profile`)
+            .then(res => res.json())
+            .then(data => setUser(data))
+            .finally(() => setLoading(false))
+            .catch(err => setError(err));
+    }, []);
 
-    const user = error ? null : data;
+    const value: AuthContextType = {
+        user,
+        loading,
+        error,
+    };
 
     return (
-        <AuthContext.Provider value={user}>
+        <AuthContext.Provider value={value}>
             {children}
         </AuthContext.Provider>
     );
 }
 
-export const useUser = () => {
+export const useAuth = () => {
     const context = useContext(AuthContext);
     if (context === undefined) {
-        throw new Error("useUser must be used within an AuthProvider");
+        throw new Error("useAuth must be used within an AuthProvider");
     }
     return context;
 };
