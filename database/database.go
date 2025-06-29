@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"embed"
+	"selfhosted/config"
 	"selfhosted/database/store"
 
 	"github.com/pressly/goose/v3"
@@ -18,7 +19,7 @@ var (
 
 func init() {
 	var err error
-	db, err = sql.Open("sqlite", ":memory:")
+	db, err = sql.Open("sqlite", config.DATABASE_DSN)
 	if err != nil {
 		panic(err)
 	}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"net/http"
 	"selfhosted/database"
 	"selfhosted/database/store"
@@ -19,6 +20,10 @@ func main() {
 		Email:        "test@example.com",
 		Name:         "Test User",
 		PasswordHash: string(hash),
+	})
+	database.New().VerifyUser(context.Background(), store.VerifyUserParams{
+		ID:              1,
+		EmailVerifiedAt: sql.NullTime{Time: time.Now(), Valid: true},
 	})
 
 	addr := ":4000"
