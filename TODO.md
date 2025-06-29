@@ -1,0 +1,23 @@
+# TODO
+
+- [ ] Reset password
+- [ ] Landing page
+- [ ] Billing
+- [ ] Profile Settings
+- [ ] Selfhosted build tag
+- [ ] Creating monitors
+- [ ] Updating monitors
+- [ ] Removing monitors
+- [ ] Monitors list
+- [ ] Periodic monitor checks
+- [ ] Incidents
+- [ ] Notifications
+- [ ] Google Oauth
+- [ ] Github Oauth
+- [ ] Graceful shutdown
+- [ ] Blue/green deployment
+- [ ] Version tagging
+- [ ] Selfhosted binary build
+- [ ] Random port selection on coflict
+- [ ] Search bar with command palette
+- [ ] Widget stats
