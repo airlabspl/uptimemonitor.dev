@@ -1,7 +1,7 @@
 # TODO
 
 - [x] Reset password
-- [ ] Resend email verification
+- [x] Resend email verification
 - [ ] Rate limitters
 - [ ] Landing page
 - [ ] Billing
