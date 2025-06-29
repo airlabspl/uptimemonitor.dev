@@ -5,3 +5,11 @@ RETURNING *;
 
 -- name: GetUserByEmail :one
 SELECT * FROM users WHERE email = ?;
+
+-- name: CountAdminUsers :one
+SELECT COUNT(*) AS count FROM users WHERE is_admin = TRUE;
+
+-- name: CreateAdminUser :one
+INSERT INTO users (name, email, password_hash, is_admin)
+VALUES (?, ?, ?, TRUE)
+RETURNING *;

@@ -6,6 +6,7 @@ CREATE TABLE  IF NOT EXISTS users (
     email TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     email_verified_at DATETIME DEFAULT NULL,
+    is_admin BOOLEAN NOT NULL DEFAULT FALSE,
     created_at DATETIME DEFAULT(CURRENT_TIMESTAMP)
 );
 

@@ -2,29 +2,23 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"net/http"
+	"selfhosted/config"
 	"selfhosted/database"
-	"selfhosted/database/store"
 	"selfhosted/handler"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func main() {
-	hash, _ := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.DefaultCost)
-	database.New().CreateUser(context.Background(), store.CreateUserParams{
-		Email:        "test@example.com",
-		Name:         "Test User",
-		PasswordHash: string(hash),
-	})
-	database.New().VerifyUser(context.Background(), store.VerifyUserParams{
-		ID:              1,
-		EmailVerifiedAt: sql.NullTime{Time: time.Now(), Valid: true},
-	})
+	adminCount, err := database.New().CountAdminUsers(context.Background())
+	if err != nil {
+		panic(err)
+	}
+
+	config.SetupFinished = adminCount > 0
 
 	addr := ":4000"
 
@@ -39,6 +33,8 @@ func main() {
 	r.Route("/v1", func(r chi.Router) {
 		r.Use(handler.AssignUserToContextMiddleware)
 
+		r.Get("/app", handler.App)
+
 		r.Group(func(r chi.Router) {
 			r.Use(handler.AuthenticatedMiddleware)
 
@@ -49,6 +45,7 @@ func main() {
 		r.Group(func(r chi.Router) {
 			r.Use(handler.GuestMiddleware)
 
+			r.Post("/setup", handler.Setup)
 			r.Post("/auth/login", handler.LoginForm)
 			r.Post("/auth/register", handler.RegisterForm)
 		})
