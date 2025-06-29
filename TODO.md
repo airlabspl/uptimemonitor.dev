@@ -1,6 +1,8 @@
 # TODO
 
 - [ ] Reset password
+- [ ] Resend email verification
+- [ ] Rate limitters
 - [ ] Landing page
 - [ ] Billing
 - [ ] Profile Settings
@@ -21,3 +23,5 @@
 - [ ] Random port selection on coflict
 - [ ] Search bar with command palette
 - [ ] Widget stats
+- [ ] Form loading states
+- [ ] Placeholders

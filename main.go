@@ -20,15 +20,17 @@ func main() {
 
 	config.SetupFinished = adminCount > 0
 
-	addr := ":4000"
-
 	r := chi.NewMux()
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Logger)
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Timeout(60 * time.Second))
 
-	r.Get("/auth/verify/{token}", handler.Verification)
+	r.Group(func(r chi.Router) {
+		r.Use(handler.SelfhostedDisabledMiddleware)
+
+		r.Get("/auth/verify/{token}", handler.Verification)
+	})
 
 	r.Route("/v1", func(r chi.Router) {
 		r.Use(handler.AssignUserToContextMiddleware)
@@ -47,14 +49,20 @@ func main() {
 
 			r.Post("/setup", handler.Setup)
 			r.Post("/auth/login", handler.LoginForm)
-			r.Post("/auth/register", handler.RegisterForm)
+
+			r.Group(func(r chi.Router) {
+				r.Use(handler.SelfhostedDisabledMiddleware)
+
+				r.Post("/auth/register", handler.RegisterForm)
+				r.Post("/auth/password-reset-link", handler.ResetPasswordLink)
+			})
 		})
 	})
 
 	r.NotFound(handler.UI)
 
 	s := &http.Server{
-		Addr:    addr,
+		Addr:    config.Addr(),
 		Handler: r,
 	}
 

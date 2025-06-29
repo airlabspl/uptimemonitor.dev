@@ -17,7 +17,7 @@ import { AppProvider } from './app/app-context'
 import { SetupRoutes } from './app/setup-routes'
 import SetupPage from './pages/setup'
 import { ThemeProvider } from './theme/theme-context'
-import ResetPassword from './pages/reset-password'
+import ResetPasswordLink from './pages/reset-password-link'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -37,7 +37,7 @@ createRoot(document.getElementById('root')!).render(
                 <Route element={<GuestRoutes />}>
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/register" element={<RegisterPage />} />
-                  <Route path="/reset-password" element={<ResetPassword />} />
+                  <Route path="/reset-password-link" element={<ResetPasswordLink />} />
                 </Route>
               </Route>
               <Route path="/setup" element={<SetupPage />} />

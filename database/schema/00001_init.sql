@@ -27,10 +27,20 @@ CREATE TABLE IF NOT EXISTS verifications (
     expires_at DATETIME NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS password_resets (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    token TEXT NOT NULL UNIQUE,
+    created_at DATETIME NOT NULL DEFAULT(CURRENT_TIMESTAMP),
+    expires_at DATETIME NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
+DROP TABLE password_resets;
 DROP TABLE email_verifications;
 DROP TABLE sessions;
 DROP TABLE users;

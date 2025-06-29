@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
-	"selfhosted/config"
 	"selfhosted/database"
 	"selfhosted/database/store"
 	"selfhosted/mailer"
@@ -72,12 +71,6 @@ func LoginForm(w http.ResponseWriter, r *http.Request) {
 }
 
 func RegisterForm(w http.ResponseWriter, r *http.Request) {
-	if config.Selfhosted() {
-		slog.Error("registration is not allowed in self-hosted mode", "context", "RegisterForm")
-		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-		return
-	}
-
 	req := struct {
 		Name            string `json:"name" validate:"required"`
 		Email           string `json:"email" validate:"required,email"`
@@ -168,12 +161,6 @@ func RegisterForm(w http.ResponseWriter, r *http.Request) {
 }
 
 func Verification(w http.ResponseWriter, r *http.Request) {
-	if config.Selfhosted() {
-		slog.Error("verification is not allowed in self-hosted mode", "context", "Verification")
-		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-		return
-	}
-
 	token := chi.URLParam(r, "token")
 	if token == "" {
 		slog.Error("verification token is empty", "context", "Verification")
@@ -241,4 +228,40 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	})
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func ResetPasswordLink(w http.ResponseWriter, r *http.Request) {
+	req := struct {
+		Email string `json:"email" validate:"required,email"`
+	}{}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		slog.Error("decode error", "context", "ResetPasswordLink", "error", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	user, err := database.New().GetUserByEmail(r.Context(), req.Email)
+	if err != nil {
+		slog.Error("user not found", "context", "ResetPasswordLink", "error", err, "email", req.Email)
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	token := uuid.NewString()
+	err = database.New().CreatePasswordReset(r.Context(), store.CreatePasswordResetParams{
+		UserID:    user.ID,
+		Token:     token,
+		CreatedAt: time.Now(),
+		ExpiresAt: time.Now().Add(24 * time.Hour),
+	})
+
+	go func(user store.User, token string) {
+		err = mailer.Send(mailer.PasswordResetMessage(user.Email, token))
+		if err != nil {
+			slog.Error("password reset email send error", "context", "ResetPasswordLink", "userID", user.ID, "error", err)
+			return
+		}
+		slog.Info("password reset email sent", "context", "ResetPasswordLink", "userID", user.ID)
+	}(user, token)
 }
