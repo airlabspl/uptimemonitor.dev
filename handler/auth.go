@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
-	"selfhosted/config"
 	"selfhosted/database"
 	"selfhosted/database/store"
 	"selfhosted/mailer"
@@ -116,18 +115,6 @@ func RegisterForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if *config.AUTOMATIC_VERIFICATION {
-		err = database.New().VerifyUser(r.Context(), store.VerifyUserParams{
-			ID:              user.ID,
-			EmailVerifiedAt: sql.NullTime{Time: time.Now(), Valid: true},
-		})
-		if err != nil {
-			slog.Error("automatic verification failed", "context", "RegisterForm", "userID", user.ID, "error", err)
-		} else {
-			slog.Info("user automatically verified", "context", "RegisterForm", "userID", user.ID)
-		}
-	}
-
 	session, err := database.New().CreateSession(r.Context(), store.CreateSessionParams{
 		Uuid:      uuid.NewString(),
 		UserID:    user.ID,
@@ -140,11 +127,6 @@ func RegisterForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	go func(user store.User) {
-		if *config.AUTOMATIC_VERIFICATION {
-			slog.Info("automatic verification enabled, skipping email", "context", "RegisterForm", "userID", user.ID)
-			return
-		}
-
 		ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 		defer cancel()
 		token := uuid.NewString()
