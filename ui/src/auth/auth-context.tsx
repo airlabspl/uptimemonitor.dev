@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 
 type User = {
     id: string;
@@ -10,6 +10,7 @@ type AuthContextType = {
     user: User | null;
     loading: boolean;
     error: any;
+    reload: () => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -19,7 +20,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [error, setError] = useState<any>(null);
 
-    useEffect(() => {
+    const reload = useCallback(() => {
+        setLoading(true);
+
         fetch(`/v1/profile`)
             .then(res => res.json())
             .then(data => setUser(data))
@@ -27,10 +30,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             .catch(err => setError(err));
     }, []);
 
+    useEffect(() => reload(), [reload]);
+
     const value: AuthContextType = {
         user,
         loading,
         error,
+        reload,
     };
 
     return (
