@@ -2,11 +2,6 @@
 
 - [x] Reset password
 - [x] Resend email verification
-- [ ] Rate limitters
-- [ ] Landing page
-- [ ] Billing
-- [ ] Profile Settings
-- [ ] Selfhosted build tag
 - [ ] Creating monitors
 - [ ] Updating monitors
 - [ ] Removing monitors
@@ -14,6 +9,11 @@
 - [ ] Periodic monitor checks
 - [ ] Incidents
 - [ ] Notifications
+- [ ] Rate limitters
+- [ ] Landing page
+- [ ] Billing
+- [ ] Profile Settings
+- [ ] Selfhosted build tag
 - [ ] Google Oauth
 - [ ] Github Oauth
 - [ ] Graceful shutdown
