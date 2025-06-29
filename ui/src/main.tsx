@@ -1,6 +1,5 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { Button } from './components/ui/button'
 
 import './main.css'
 import { AuthProvider } from './auth/auth-context'
@@ -11,6 +10,7 @@ import HomePage from './pages/home-page'
 import LoginPage from './pages/login-page'
 import { Toaster } from './components/ui/sonner'
 import RegisterPage from './pages/register-page'
+import Dashboard from './pages/dashboard'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -19,8 +19,7 @@ createRoot(document.getElementById('root')!).render(
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route element={<ProtectedRoutes />}>
-            <Route path="/dashboard" element={<Button>Dashboard</Button>} />
-            <Route path="/profile" element={<Button>Profile</Button>} />
+            <Route path="/dashboard" element={<Dashboard />} />
           </Route>
           <Route element={<GuestRoutes />}>
             <Route path="/login" element={<LoginPage />} />

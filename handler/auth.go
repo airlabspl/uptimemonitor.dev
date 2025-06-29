@@ -1,11 +1,13 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"log/slog"
 	"net/http"
 	"selfhosted/database"
 	"selfhosted/database/store"
+	"selfhosted/mailer"
 	"time"
 
 	"github.com/google/uuid"
@@ -121,6 +123,27 @@ func RegisterForm(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+
+	go func(user store.User) {
+		ctx, _ := context.WithTimeout(context.Background(), time.Minute)
+		token := uuid.NewString()
+		err := database.New().CreateVerification(ctx, store.CreateVerificationParams{
+			UserID:    user.ID,
+			Token:     token,
+			ExpiresAt: time.Now().Add(24 * time.Hour),
+		})
+		if err != nil {
+			slog.Error("verification creation error", "context", "RegisterForm", "userID", user.ID, "error", err)
+			return
+		}
+		slog.Info("verification created", "context", "RegisterForm", "userID", user.ID)
+		err = mailer.Send(mailer.VerificationMessage(user.Email, token))
+		if err != nil {
+			slog.Error("verification email send error", "context", "RegisterForm", "userID", user.ID, "error", err)
+			return
+		}
+		slog.Info("verification email sent", "context", "RegisterForm", "userID", user.ID)
+	}(user)
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session",

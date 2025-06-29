@@ -6,6 +6,15 @@ watch:
 build: ui sqlc
 	go build -o ./tmp/main .
 
+.PHONY: bin
+bin:
+	./tmp/main \
+		-smtp-host 127.0.0.1 \
+		-smtp-port 1025 \
+		-smtp-user "" \
+		-smtp-pass "" \
+		-mail-from "Uptime Monitor <no-reply@uptimemonitor.dev>"
+
 .PHONY: ui
 ui:
 	npm run build --prefix ./ui
