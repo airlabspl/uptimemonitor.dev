@@ -67,7 +67,7 @@ function LoginForm() {
             <div className="flex items-center justify-between gap-4">
                 <Label htmlFor="password">Password</Label>
                 {!selfhosted &&
-                    <a href="/forgot-password" className="text-sm text-primary underline">
+                    <a href="/reset-password" className="text-sm text-primary underline">
                         Forgot password?
                     </a>}
             </div>

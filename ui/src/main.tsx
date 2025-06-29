@@ -6,17 +6,18 @@ import { AuthProvider } from './auth/auth-context'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { ProtectedRoutes } from './auth/protected-routes'
 import { GuestRoutes } from './auth/guest-routes'
-import HomePage from './pages/home-page'
-import LoginPage from './pages/login-page'
+import HomePage from './pages/home'
+import LoginPage from './pages/login'
 import { Toaster } from './components/ui/sonner'
-import RegisterPage from './pages/register-page'
+import RegisterPage from './pages/register'
 import Dashboard from './pages/dashboard'
 import { VerifiedRoutes } from './auth/verified-routes'
-import VerifyPage from './pages/verify-page'
+import VerifyPage from './pages/verify'
 import { AppProvider } from './app/app-context'
 import { SetupRoutes } from './app/setup-routes'
-import SetupPage from './pages/setup-page'
+import SetupPage from './pages/setup'
 import { ThemeProvider } from './theme/theme-context'
+import ResetPassword from './pages/reset-password'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -36,6 +37,7 @@ createRoot(document.getElementById('root')!).render(
                 <Route element={<GuestRoutes />}>
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/register" element={<RegisterPage />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
                 </Route>
               </Route>
               <Route path="/setup" element={<SetupPage />} />
