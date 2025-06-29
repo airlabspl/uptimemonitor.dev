@@ -2,13 +2,24 @@ import { useAuth } from "@/auth/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 
 export default function LoginPage() {
     return (
         <div className="min-h-svh flex items-center justify-center p-6 md:p-10">
-            <LoginForm />
+            <div className="flex flex-col w-full max-w-sm gap-6">
+                <div className="flex flex-col gap-1">
+                    <h1 className="text-2xl font-bold">Log in to your account</h1>
+                    <p className="text-sm text-muted-foreground">
+                        Don't have an account?{" "}
+                        <Link to="/register" className="text-primary underline">
+                            Sign up
+                        </Link>
+                    </p>
+                </div>
+                <LoginForm />
+            </div>
         </div>
     )
 }
@@ -44,10 +55,6 @@ function LoginForm() {
     };
 
     return <form className="w-full max-w-sm flex flex-col gap-4" onSubmit={handleSubmit}>
-        <div className="flex flex-col gap-1.5">
-            <h1 className="text-2xl font-semibold">Log in</h1>
-            <p className="text-sm text-muted-foreground">Enter your email and password to log in.</p>
-        </div>
         <div className="flex flex-col gap-1.5">
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" name="email" placeholder="email@example.com" autoFocus required />
