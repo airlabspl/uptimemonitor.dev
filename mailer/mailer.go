@@ -13,9 +13,9 @@ type Message struct {
 }
 
 func Send(message Message) error {
-	auth := smtp.CRAMMD5Auth(*config.SMTP_USER, *config.SMTP_PASS)
-	addr := *config.SMTP_HOST + ":" + *config.SMTP_PORT
-	from := *config.MAIL_FROM
+	auth := smtp.CRAMMD5Auth(config.SmtpUser(), config.SmtpPass())
+	addr := config.SmtpHost() + ":" + config.SmtpPort()
+	from := config.MailFrom()
 
 	body := "Subject: " + message.Subject + "\r\n" +
 		"From: " + from + "\r\n" +

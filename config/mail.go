@@ -3,9 +3,29 @@ package config
 import "flag"
 
 var (
-	SMTP_HOST = flag.String("smtp-host", "localhost", "SMTP server host")
-	SMTP_PORT = flag.String("smtp-port", "587", "SMTP server port")
-	SMTP_USER = flag.String("smtp-user", "", "SMTP server username")
-	SMTP_PASS = flag.String("smtp-pass", "", "SMTP server password")
-	MAIL_FROM = flag.String("mail-from", "Uptime Monitor <no-reply@example.com>", "Email address to send from")
+	smtpHost = flag.String("smtp-host", "localhost", "SMTP server host")
+	smtpPort = flag.String("smtp-port", "587", "SMTP server port")
+	smtpUser = flag.String("smtp-user", "", "SMTP server username")
+	smtpPass = flag.String("smtp-pass", "", "SMTP server password")
+	mailFrom = flag.String("mail-from", "Uptime Monitor <no-reply@example.com>", "Email address to send from")
 )
+
+func SmtpHost() string {
+	return *smtpHost
+}
+
+func SmtpPort() string {
+	return *smtpPort
+}
+
+func SmtpUser() string {
+	return *smtpUser
+}
+
+func SmtpPass() string {
+	return *smtpPass
+}
+
+func MailFrom() string {
+	return *mailFrom
+}

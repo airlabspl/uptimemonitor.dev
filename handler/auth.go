@@ -72,7 +72,7 @@ func LoginForm(w http.ResponseWriter, r *http.Request) {
 }
 
 func RegisterForm(w http.ResponseWriter, r *http.Request) {
-	if *config.SELFHOSTED {
+	if config.Selfhosted() {
 		slog.Error("registration is not allowed in self-hosted mode", "context", "RegisterForm")
 		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 		return
@@ -168,7 +168,7 @@ func RegisterForm(w http.ResponseWriter, r *http.Request) {
 }
 
 func Verification(w http.ResponseWriter, r *http.Request) {
-	if *config.SELFHOSTED {
+	if config.Selfhosted() {
 		slog.Error("verification is not allowed in self-hosted mode", "context", "Verification")
 		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 		return

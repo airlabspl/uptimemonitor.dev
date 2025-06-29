@@ -12,6 +12,6 @@ func App(w http.ResponseWriter, r *http.Request) {
 		Selfhosted    bool `json:"selfhosted"`
 	}{
 		SetupFinished: config.SetupFinished,
-		Selfhosted:    *config.SELFHOSTED,
+		Selfhosted:    config.Selfhosted(),
 	})
 }
