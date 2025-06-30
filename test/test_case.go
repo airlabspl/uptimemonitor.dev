@@ -55,6 +55,22 @@ func (tc *TestCase) Authenticated() {
 	tc.User = tc.CreateUser("Test User", "test@example.com", "password")
 }
 
+func (tc *TestCase) Get(url string) {
+	req, _ := http.NewRequest(http.MethodGet, tc.Server.URL+url, nil)
+
+	if tc.User != nil {
+		cookie := tc.CreateSesionCookie(tc.User)
+		req.AddCookie(cookie)
+	}
+
+	res, err := tc.Client.Do(req)
+	if err != nil {
+		tc.T.Fatalf("get request error: %v", err)
+	}
+
+	tc.LastResponse = res
+}
+
 func (tc *TestCase) Post(url string, data any) {
 	body, _ := json.Marshal(data)
 
@@ -229,6 +245,20 @@ func (tc *TestCase) AssertJSONEquals(expected any) {
 
 	if !reflect.DeepEqual(expectedMap, actualMap) {
 		tc.T.Fatalf("expected JSON response to equal: %v, got: %v", expectedMap, actualMap)
+	}
+}
+
+func (tc *TestCase) AssertJSONDoesNotContain(s string) {
+	if tc.LastResponse == nil {
+		tc.T.Fatalf("no response for assertion available")
+	}
+	defer tc.LastResponse.Body.Close()
+	body, err := io.ReadAll(tc.LastResponse.Body)
+	if err != nil {
+		tc.T.Fatalf("failed to read response body: %v", err)
+	}
+	if strings.Contains(string(body), s) {
+		tc.T.Fatalf("did not expect to find '%s' in JSON response, but it was present", s)
 	}
 }
 

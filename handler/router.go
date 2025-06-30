@@ -31,7 +31,8 @@ func NewRouter() *chi.Mux {
 			r.Get("/profile", Profile)
 			r.Delete("/auth/logout", Logout)
 
-			r.Post("/monitor", CreateMonitor)
+			r.Post("/monitors", CreateMonitor)
+			r.Get("/monitors", ListMonitors)
 
 			r.Group(func(r chi.Router) {
 				r.Use(SelfhostedDisabledMiddleware)

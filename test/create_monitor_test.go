@@ -10,7 +10,7 @@ func TestCreateMonitor(t *testing.T) {
 		tc := NewTestCase(t)
 		defer tc.Close()
 
-		tc.Post("/v1/monitor", struct{}{})
+		tc.Post("/v1/monitors", struct{}{})
 		tc.AssertStatus(http.StatusUnauthorized)
 	})
 
@@ -19,7 +19,7 @@ func TestCreateMonitor(t *testing.T) {
 		defer tc.Close()
 
 		tc.Authenticated()
-		tc.Post("/v1/monitor", struct{}{})
+		tc.Post("/v1/monitors", struct{}{})
 		tc.AssertStatus(http.StatusBadRequest)
 	})
 
@@ -28,7 +28,7 @@ func TestCreateMonitor(t *testing.T) {
 		defer tc.Close()
 
 		tc.Authenticated()
-		tc.Post("/v1/monitor", map[string]string{
+		tc.Post("/v1/monitors", map[string]string{
 			"url": "invalid",
 		})
 		tc.AssertStatus(http.StatusBadRequest)
@@ -39,7 +39,7 @@ func TestCreateMonitor(t *testing.T) {
 		defer tc.Close()
 
 		tc.Authenticated()
-		tc.Post("/v1/monitor", map[string]string{
+		tc.Post("/v1/monitors", map[string]string{
 			"url": "https://google.com",
 		})
 		tc.AssertStatus(http.StatusCreated)

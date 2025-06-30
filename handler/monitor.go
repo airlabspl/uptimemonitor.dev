@@ -46,3 +46,7 @@ func CreateMonitor(w http.ResponseWriter, r *http.Request) {
 		Uuid: monitorUuid,
 	})
 }
+
+func ListMonitors(w http.ResponseWriter, r *http.Request) {
+
+}
