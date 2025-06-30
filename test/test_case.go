@@ -1,7 +1,9 @@
 package test
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"selfhosted/config"
@@ -16,9 +18,11 @@ import (
 )
 
 type TestCase struct {
-	Server *httptest.Server
-	Client *http.Client
-	T      *testing.T
+	Server       *httptest.Server
+	Client       *http.Client
+	T            *testing.T
+	User         *store.User
+	LastResponse *http.Response
 }
 
 func NewTestCase(t *testing.T) *TestCase {
@@ -37,6 +41,32 @@ func NewTestCase(t *testing.T) *TestCase {
 
 func (tc *TestCase) Close() {
 	tc.Server.Close()
+}
+
+func (tc *TestCase) ActingAs(user *store.User) {
+	tc.User = user
+}
+
+func (tc *TestCase) Authenticated() {
+	tc.User = tc.CreateUser("Test User", "test@example.com", "password")
+}
+
+func (tc *TestCase) Post(url string, data any) {
+	body, _ := json.Marshal(data)
+
+	req, _ := http.NewRequest(http.MethodPost, tc.Server.URL+url, bytes.NewBuffer(body))
+
+	if tc.User != nil {
+		cookie := tc.CreateSesionCookie(tc.User)
+		req.AddCookie(cookie)
+	}
+
+	res, err := tc.Client.Do(req)
+	if err != nil {
+		tc.T.Fatalf("post request error: %v", err)
+	}
+
+	tc.LastResponse = res
 }
 
 func (tc *TestCase) CreateUser(name, email, password string) *store.User {
@@ -70,5 +100,15 @@ func (tc *TestCase) CreateSesionCookie(user *store.User) *http.Cookie {
 		Expires:  time.Now().Add(24 * time.Hour),
 		Secure:   false,
 		HttpOnly: true,
+	}
+}
+
+func (tc *TestCase) AssertStatus(statusCode int) {
+	if tc.LastResponse == nil {
+		tc.T.Fatalf("no response for assertion availabe")
+	}
+
+	if tc.LastResponse.StatusCode != statusCode {
+		tc.T.Fatalf("expected %v status code, but got: %v", statusCode, tc.LastResponse.StatusCode)
 	}
 }

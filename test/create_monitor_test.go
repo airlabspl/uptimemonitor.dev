@@ -1,8 +1,6 @@
 package test
 
 import (
-	"bytes"
-	"encoding/json"
 	"net/http"
 	"testing"
 )
@@ -12,31 +10,16 @@ func TestCreateMonitor(t *testing.T) {
 		tc := NewTestCase(t)
 		defer tc.Close()
 
-		res, _ := tc.Client.Post(tc.Server.URL+"/v1/monitor", "application/json", nil)
-		if res.StatusCode != http.StatusUnauthorized {
-			t.Fatalf("expected 401 status code, got %v", res.StatusCode)
-		}
+		tc.Post("/v1/monitor", struct{}{})
+		tc.AssertStatus(http.StatusUnauthorized)
 	})
 
 	t.Run("url is required", func(t *testing.T) {
 		tc := NewTestCase(t)
 		defer tc.Close()
 
-		user := tc.CreateUser("Test User", "test@example.com", "password")
-		cookie := tc.CreateSesionCookie(user)
-
-		body, _ := json.Marshal(struct{}{})
-
-		req, _ := http.NewRequest(http.MethodPost, tc.Server.URL+"/v1/monitor", bytes.NewBuffer(body))
-		req.AddCookie(cookie)
-
-		res, err := tc.Client.Do(req)
-		if err != nil {
-			t.Fatalf("error: %v", err)
-		}
-
-		if res.StatusCode != http.StatusBadRequest {
-			t.Fatalf("expected 400 status code, got %v", res.StatusCode)
-		}
+		tc.Authenticated()
+		tc.Post("/v1/monitor", struct{}{})
+		tc.AssertStatus(http.StatusBadRequest)
 	})
 }
