@@ -19,6 +19,8 @@ import SetupPage from './pages/setup'
 import { ThemeProvider } from './theme/theme-context'
 import ResetPasswordLink from './pages/reset-password-link'
 import ResetPassword from './pages/reset-password'
+import AppLayout from './layouts/app'
+import Monitor from './pages/monitor'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -32,7 +34,10 @@ createRoot(document.getElementById('root')!).render(
                 <Route element={<ProtectedRoutes />}>
                   <Route path="/verify" element={<VerifyPage />} />
                   <Route element={<VerifiedRoutes />}>
-                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route element={<AppLayout />}>
+                      <Route path="/dashboard" element={<Dashboard />} />
+                      <Route path="/m/:uuid" element={<Monitor />} />
+                    </Route>
                   </Route>
                 </Route>
                 <Route element={<GuestRoutes />}>

@@ -2,12 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { FormEvent, ReactNode } from "react";
+import { FormEvent, ReactNode, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 export default function CreateMonitor({ children }: { children: ReactNode }) {
     const navigate = useNavigate()
+    const [open, setOpen] = useState(false)
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
@@ -34,9 +35,10 @@ export default function CreateMonitor({ children }: { children: ReactNode }) {
 
         toast.success("Monitor created")
         navigate(`/m/${data.uuid}`)
+        setOpen(false)
     }
-    return <Sheet>
-        <SheetTrigger className="w-full cursor-pointer">
+    return <Sheet onOpenChange={o => setOpen(o)} open={open}>
+        <SheetTrigger className="w-full cursor-pointer" onToggle={() => setOpen(o => !o)}>
             {children}
         </SheetTrigger>
         <SheetContent>
