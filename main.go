@@ -21,6 +21,8 @@ func init() {
 	flag.StringVar(&config.MailFrom, "mail-from", "Uptime Monitor <no-reply@example.com>", "Email address to send from")
 
 	flag.Parse()
+
+	database.Connect()
 }
 
 func main() {

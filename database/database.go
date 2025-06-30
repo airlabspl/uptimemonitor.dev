@@ -18,7 +18,7 @@ var (
 	db *sql.DB
 )
 
-func init() {
+func Connect() {
 	var err error
 
 	dsn := config.DatabaseDsn
