@@ -25,3 +25,5 @@
 - [ ] Widget stats
 - [ ] Form loading states
 - [ ] Placeholders
+- [ ] Add missing tests (setup, auth)
+- [ ] E2E test suite
