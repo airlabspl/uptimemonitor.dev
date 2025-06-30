@@ -18,6 +18,10 @@ var (
 	db *sql.DB
 )
 
+func DB() *sql.DB {
+	return db
+}
+
 func Connect() {
 	var err error
 

@@ -39,6 +39,7 @@ func CreateMonitor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(struct {
 		Uuid string `json:"uuid"`
 	}{

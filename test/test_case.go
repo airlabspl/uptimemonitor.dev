@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"selfhosted/config"
@@ -110,5 +111,24 @@ func (tc *TestCase) AssertStatus(statusCode int) {
 
 	if tc.LastResponse.StatusCode != statusCode {
 		tc.T.Fatalf("expected %v status code, but got: %v", statusCode, tc.LastResponse.StatusCode)
+	}
+}
+
+func (tc *TestCase) AssertDatabaseCount(table string, count int) {
+	query := fmt.Sprintf(`SELECT COUNT(*) AS count FROM %s`, table)
+	rows, err := database.DB().Query(query)
+	rows.Next()
+	if err != nil {
+		tc.T.Fatalf("unexpected query error: %v", err)
+	}
+
+	var actual int
+	err = rows.Scan(&actual)
+	if err != nil {
+		tc.T.Fatalf("unexpected scan error: %v", err)
+	}
+
+	if actual != count {
+		tc.T.Fatalf("expected %v rows in %v table, got %v instead", count, table, actual)
 	}
 }
