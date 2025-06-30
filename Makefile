@@ -28,7 +28,7 @@ sqlc:
 	go tool sqlc generate
 
 .PHONY: test
-test: build
+test:
 	go tool gotestsum
 
 .PHONY: e2e
