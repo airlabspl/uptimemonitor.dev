@@ -2,6 +2,7 @@ package test
 
 import (
 	"bytes"
+	"encoding/json"
 	"net/http"
 	"testing"
 )
@@ -24,7 +25,9 @@ func TestCreateMonitor(t *testing.T) {
 		user := tc.CreateUser("Test User", "test@example.com", "password")
 		cookie := tc.CreateSesionCookie(user)
 
-		req, _ := http.NewRequest(http.MethodPost, tc.Server.URL+"/v1/monitor", bytes.NewReader(nil))
+		body, _ := json.Marshal(struct{}{})
+
+		req, _ := http.NewRequest(http.MethodPost, tc.Server.URL+"/v1/monitor", bytes.NewBuffer(body))
 		req.AddCookie(cookie)
 
 		res, err := tc.Client.Do(req)

@@ -23,6 +23,11 @@ func CreateMonitor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := validate.Struct(req); err != nil {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
 	monitorUuid := uuid.NewString()
 	if err := database.New().CreateMonitor(r.Context(), store.CreateMonitorParams{
 		Uuid:   monitorUuid,
