@@ -48,5 +48,6 @@ func TestCreateMonitor(t *testing.T) {
 			"user_id": 1,
 			"url":     "https://google.com",
 		})
+		tc.AssertJSONKeys([]string{"uuid"})
 	})
 }

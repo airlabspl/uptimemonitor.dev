@@ -3,14 +3,37 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { FormEvent, ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function CreateMonitor({ children }: { children: ReactNode }) {
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    const navigate = useNavigate()
+
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
 
-        // const formData = new FormData(event.currentTarget)
+        const formData = new FormData(event.currentTarget)
 
-        // fetch(`/v1/`)
+        const res = await fetch(`/v1/monitor`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify({
+                url: formData.get("url"),
+            })
+        })
+
+        if (!res.ok) {
+            toast.error("Could not create a monitor")
+            return
+        }
+
+        const data = await res.json()
+
+        toast.success("Monitor created")
+        navigate(`/m/${data.uuid}`)
     }
     return <Sheet>
         <SheetTrigger className="w-full cursor-pointer">

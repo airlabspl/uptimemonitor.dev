@@ -49,6 +49,6 @@ createRoot(document.getElementById('root')!).render(
         </AuthProvider>
       </AppProvider>
     </ThemeProvider>
-    <Toaster />
+    <Toaster position="bottom-left" />
   </StrictMode>,
 )

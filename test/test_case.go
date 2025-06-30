@@ -5,12 +5,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"selfhosted/config"
 	"selfhosted/database"
 	"selfhosted/database/store"
 	"selfhosted/handler"
+	"strings"
 	"testing"
 	"time"
 
@@ -156,4 +159,96 @@ func (tc *TestCase) AssertDatabaseHas(table string, filters map[string]any) {
 	if actual == 0 {
 		tc.T.Fatalf("expected at least 1 row in %v table matching filters, got 0", table)
 	}
+}
+
+func (tc *TestCase) AssertJSONKeys(expected any) {
+	if tc.LastResponse == nil {
+		tc.T.Fatalf("no response for assertion available")
+	}
+	defer tc.LastResponse.Body.Close()
+	body, err := io.ReadAll(tc.LastResponse.Body)
+	if err != nil {
+		tc.T.Fatalf("failed to read response body: %v", err)
+	}
+
+	var actualMap map[string]any
+	if err := json.Unmarshal(body, &actualMap); err != nil {
+		tc.T.Fatalf("response is not valid JSON object: %v", err)
+	}
+
+	var expectedKeys []string
+	switch v := expected.(type) {
+	case []string:
+		expectedKeys = v
+	default:
+		expectedKeys = structFieldNames(expected)
+	}
+
+	for _, key := range expectedKeys {
+		if _, ok := actualMap[key]; !ok {
+			tc.T.Fatalf("expected key '%s' in response JSON, but it was missing", key)
+		}
+	}
+	for key := range actualMap {
+		found := false
+		for _, expKey := range expectedKeys {
+			if key == expKey {
+				found = true
+				break
+			}
+		}
+		if !found {
+			tc.T.Fatalf("unexpected key '%s' in response JSON", key)
+		}
+	}
+}
+
+func (tc *TestCase) AssertJSONEquals(expected any) {
+	if tc.LastResponse == nil {
+		tc.T.Fatalf("no response for assertion available")
+	}
+	defer tc.LastResponse.Body.Close()
+	body, err := io.ReadAll(tc.LastResponse.Body)
+	if err != nil {
+		tc.T.Fatalf("failed to read response body: %v", err)
+	}
+
+	expectedJSON, err := json.Marshal(expected)
+	if err != nil {
+		tc.T.Fatalf("failed to marshal expected struct: %v", err)
+	}
+	var expectedMap map[string]any
+	if err := json.Unmarshal(expectedJSON, &expectedMap); err != nil {
+		tc.T.Fatalf("expected struct is not a valid JSON object: %v", err)
+	}
+
+	var actualMap map[string]any
+	if err := json.Unmarshal(body, &actualMap); err != nil {
+		tc.T.Fatalf("response is not valid JSON object: %v", err)
+	}
+
+	if !reflect.DeepEqual(expectedMap, actualMap) {
+		tc.T.Fatalf("expected JSON response to equal: %v, got: %v", expectedMap, actualMap)
+	}
+}
+
+func structFieldNames(s any) []string {
+	t := reflect.TypeOf(s)
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+	var names []string
+	for i := 0; i < t.NumField(); i++ {
+		f := t.Field(i)
+		tag := f.Tag.Get("json")
+		if tag == "-" {
+			continue
+		}
+		name := strings.Split(tag, ",")[0]
+		if name == "" {
+			name = f.Name
+		}
+		names = append(names, name)
+	}
+	return names
 }
