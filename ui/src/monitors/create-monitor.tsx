@@ -15,7 +15,7 @@ export default function CreateMonitor({ children }: { children: ReactNode }) {
 
         const formData = new FormData(event.currentTarget)
 
-        const res = await fetch(`/v1/monitor`, {
+        const res = await fetch(`/v1/monitors`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
