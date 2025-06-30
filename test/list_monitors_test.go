@@ -38,4 +38,25 @@ func TestListMonitors(t *testing.T) {
 		tc.AssertJSONDoesNotContain(uuid)
 		tc.AssertJSONDoesNotContain(url)
 	})
+
+	t.Run("users can list their monitors", func(t *testing.T) {
+		tc := NewTestCase(t)
+		defer tc.Close()
+
+		tc.Authenticated()
+
+		uuid := uuid.NewString()
+		url := "http://google.com"
+
+		database.New().CreateMonitor(context.Background(), store.CreateMonitorParams{
+			UserID: 1,
+			Uuid:   uuid,
+			Url:    url,
+		})
+
+		tc.Get("/v1/monitors")
+		tc.AssertStatus(http.StatusOK)
+		tc.AssertJSONContains(uuid)
+		tc.AssertJSONContains(url)
+	})
 }

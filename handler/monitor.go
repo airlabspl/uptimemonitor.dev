@@ -10,6 +10,11 @@ import (
 	"github.com/google/uuid"
 )
 
+type MonitorDTO struct {
+	Uuid string `json:"uuid"`
+	Url  string `json:"url"`
+}
+
 func CreateMonitor(w http.ResponseWriter, r *http.Request) {
 	user := r.Context().Value("user").(*store.User)
 
@@ -48,5 +53,26 @@ func CreateMonitor(w http.ResponseWriter, r *http.Request) {
 }
 
 func ListMonitors(w http.ResponseWriter, r *http.Request) {
+	user := r.Context().Value("user").(*store.User)
 
+	monitors, err := database.New().ListMonitors(r.Context(), user.ID)
+	if err != nil {
+		slog.Error("cannot list monitors", "context", "ListMonitors", "error", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	data := []MonitorDTO{}
+	for _, m := range monitors {
+		data = append(data, MonitorDTO{
+			Uuid: m.Uuid,
+			Url:  m.Url,
+		})
+	}
+
+	json.NewEncoder(w).Encode(struct {
+		Monitors []MonitorDTO `json:"monitors"`
+	}{
+		Monitors: data,
+	})
 }

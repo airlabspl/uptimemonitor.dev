@@ -22,11 +22,28 @@ import (
 )
 
 type TestCase struct {
-	Server       *httptest.Server
-	Client       *http.Client
-	T            *testing.T
-	User         *store.User
-	LastResponse *http.Response
+	Server           *httptest.Server
+	Client           *http.Client
+	T                *testing.T
+	User             *store.User
+	LastResponse     *http.Response
+	LastResponseBody []byte
+}
+
+func (tc *TestCase) getResponseBody() ([]byte, error) {
+	if tc.LastResponseBody != nil {
+		return tc.LastResponseBody, nil
+	}
+	if tc.LastResponse == nil {
+		return nil, fmt.Errorf("no response for assertion available")
+	}
+	body, err := io.ReadAll(tc.LastResponse.Body)
+	if err != nil {
+		return nil, err
+	}
+	tc.LastResponseBody = body
+	tc.LastResponse.Body.Close()
+	return body, nil
 }
 
 func NewTestCase(t *testing.T) *TestCase {
@@ -69,6 +86,7 @@ func (tc *TestCase) Get(url string) {
 	}
 
 	tc.LastResponse = res
+	tc.LastResponseBody = nil
 }
 
 func (tc *TestCase) Post(url string, data any) {
@@ -87,6 +105,7 @@ func (tc *TestCase) Post(url string, data any) {
 	}
 
 	tc.LastResponse = res
+	tc.LastResponseBody = nil
 }
 
 func (tc *TestCase) CreateUser(name, email, password string) *store.User {
@@ -178,15 +197,10 @@ func (tc *TestCase) AssertDatabaseHas(table string, filters map[string]any) {
 }
 
 func (tc *TestCase) AssertJSONKeys(expected any) {
-	if tc.LastResponse == nil {
-		tc.T.Fatalf("no response for assertion available")
-	}
-	defer tc.LastResponse.Body.Close()
-	body, err := io.ReadAll(tc.LastResponse.Body)
+	body, err := tc.getResponseBody()
 	if err != nil {
 		tc.T.Fatalf("failed to read response body: %v", err)
 	}
-
 	var actualMap map[string]any
 	if err := json.Unmarshal(body, &actualMap); err != nil {
 		tc.T.Fatalf("response is not valid JSON object: %v", err)
@@ -220,11 +234,7 @@ func (tc *TestCase) AssertJSONKeys(expected any) {
 }
 
 func (tc *TestCase) AssertJSONEquals(expected any) {
-	if tc.LastResponse == nil {
-		tc.T.Fatalf("no response for assertion available")
-	}
-	defer tc.LastResponse.Body.Close()
-	body, err := io.ReadAll(tc.LastResponse.Body)
+	body, err := tc.getResponseBody()
 	if err != nil {
 		tc.T.Fatalf("failed to read response body: %v", err)
 	}
@@ -249,16 +259,22 @@ func (tc *TestCase) AssertJSONEquals(expected any) {
 }
 
 func (tc *TestCase) AssertJSONDoesNotContain(s string) {
-	if tc.LastResponse == nil {
-		tc.T.Fatalf("no response for assertion available")
-	}
-	defer tc.LastResponse.Body.Close()
-	body, err := io.ReadAll(tc.LastResponse.Body)
+	body, err := tc.getResponseBody()
 	if err != nil {
 		tc.T.Fatalf("failed to read response body: %v", err)
 	}
 	if strings.Contains(string(body), s) {
 		tc.T.Fatalf("did not expect to find '%s' in JSON response, but it was present", s)
+	}
+}
+
+func (tc *TestCase) AssertJSONContains(s string) {
+	body, err := tc.getResponseBody()
+	if err != nil {
+		tc.T.Fatalf("failed to read response body: %v", err)
+	}
+	if !strings.Contains(string(body), s) {
+		tc.T.Fatalf("expected to find '%s' in JSON response, but it was not present", s)
 	}
 }
 

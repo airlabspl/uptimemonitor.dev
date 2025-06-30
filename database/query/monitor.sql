@@ -2,6 +2,7 @@
 INSERT INTO monitors (uuid, url, user_id)
 VALUES (?, ? , ?);
 
--- name: GetMonitors :many
+-- name: ListMonitors :many
 SELECT * FROM monitors
-WHERE user_id = ?;
+WHERE user_id = ?
+ORDER BY id DESC;
