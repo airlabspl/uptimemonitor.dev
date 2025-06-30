@@ -44,5 +44,9 @@ func TestCreateMonitor(t *testing.T) {
 		})
 		tc.AssertStatus(http.StatusCreated)
 		tc.AssertDatabaseCount("monitors", 1)
+		tc.AssertDatabaseHas("monitors", map[string]any{
+			"user_id": 1,
+			"url":     "https://google.com",
+		})
 	})
 }

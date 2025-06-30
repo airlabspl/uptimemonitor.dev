@@ -116,19 +116,44 @@ func (tc *TestCase) AssertStatus(statusCode int) {
 
 func (tc *TestCase) AssertDatabaseCount(table string, count int) {
 	query := fmt.Sprintf(`SELECT COUNT(*) AS count FROM %s`, table)
-	rows, err := database.DB().Query(query)
-	rows.Next()
-	if err != nil {
-		tc.T.Fatalf("unexpected query error: %v", err)
-	}
+	row := database.DB().QueryRow(query)
 
 	var actual int
-	err = rows.Scan(&actual)
+	err := row.Scan(&actual)
 	if err != nil {
 		tc.T.Fatalf("unexpected scan error: %v", err)
 	}
 
 	if actual != count {
 		tc.T.Fatalf("expected %v rows in %v table, got %v instead", count, table, actual)
+	}
+}
+
+func (tc *TestCase) AssertDatabaseHas(table string, filters map[string]any) {
+	if len(filters) == 0 {
+		tc.T.Fatalf("no filters provided for AssertDatabaseHas")
+	}
+
+	where := ""
+	args := make([]any, 0, len(filters))
+	for k, v := range filters {
+		if where != "" {
+			where += " AND "
+		}
+		where += fmt.Sprintf("%s = ?", k)
+		args = append(args, v)
+	}
+
+	query := fmt.Sprintf(`SELECT COUNT(*) AS count FROM %s WHERE %s`, table, where)
+	row := database.DB().QueryRow(query, args...)
+
+	var actual int
+	err := row.Scan(&actual)
+	if err != nil {
+		tc.T.Fatalf("unexpected scan error: %v", err)
+	}
+
+	if actual == 0 {
+		tc.T.Fatalf("expected at least 1 row in %v table matching filters, got 0", table)
 	}
 }
