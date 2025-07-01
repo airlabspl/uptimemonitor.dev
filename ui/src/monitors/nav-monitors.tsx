@@ -1,6 +1,6 @@
 import { fetcher } from "@/api/fetcher";
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import useSWR from "swr"
 
 type Monitor = {
@@ -21,11 +21,13 @@ export default function NavMonitors() {
                 <SidebarMenu>
                     {(data?.monitors ?? []).map(m => (
                         <SidebarMenuItem key={m.uuid}>
-                            <SidebarMenuButton asChild>
-                                <Link to={`/m/${m.uuid}`}>
-                                    <span>{m.url}</span>
-                                </Link>
-                            </SidebarMenuButton>
+                            <NavLink to={`/m/${m.uuid}`}>
+                                {({ isActive }) => (
+                                    <SidebarMenuButton asChild isActive={isActive}>
+                                        <span>{m.url}</span>
+                                    </SidebarMenuButton>
+                                )}
+                            </NavLink>
                         </SidebarMenuItem>
                     ))}
                 </SidebarMenu>
