@@ -5,6 +5,7 @@ import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetT
 import { FormEvent, ReactNode, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { mutate } from "swr";
 
 export default function CreateMonitor({ children }: { children: ReactNode }) {
     const navigate = useNavigate()
@@ -34,6 +35,7 @@ export default function CreateMonitor({ children }: { children: ReactNode }) {
         const data = await res.json()
 
         toast.success("Monitor created")
+        mutate(`/v1/monitors`)
         navigate(`/m/${data.uuid}`)
         setOpen(false)
     }

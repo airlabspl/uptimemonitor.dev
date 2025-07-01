@@ -54,7 +54,6 @@ function LoginForm() {
         }
 
         reload();
-        toast.success("Logged in successfully!");
         navigate("/dashboard");
     };
 
